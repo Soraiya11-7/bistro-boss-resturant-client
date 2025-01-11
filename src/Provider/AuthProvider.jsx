@@ -2,6 +2,7 @@
 import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { app } from "../firebase/firebase.config";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 // import axios from "axios";
 const auth = getAuth(app);
 
@@ -12,6 +13,7 @@ const AuthProvider = ({children}) => {
 
 const [user,setUser] = useState(null);
 const [loading, setLoading] = useState(true);
+const axiosPublic = useAxiosPublic();
 
 
 const  name = 'bistro-boss';
@@ -46,42 +48,29 @@ const signInWithGoogle = () => {
 useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, currentUser => {
         setUser(currentUser);
-        console.log('current user', currentUser);
-        setLoading(false);
+        if (currentUser) {
+            // get token and store client
+            const userInfo = { email: currentUser.email };
+            axiosPublic.post('/jwt', userInfo)
+                .then(res => {
+                    if (res.data.token) {
+                        localStorage.setItem('access-token', res.data.token);
+                        setLoading(false);
+                    }
+                })
+        }
+        else {
+            // TODO: remove token (if token stored in the client side: Local storage, caching, in memory)
+            localStorage.removeItem('access-token');
+            setLoading(false);
+        }
+        
     });
     return () => {
         return unsubscribe();
     }
-}, [])
-// useEffect(() =>{
-//     const unSubscribe = onAuthStateChanged(auth, (currentUser) =>{
-//         setUser(currentUser)
-//         if (currentUser?.email) {
-//             const user = { email: currentUser.email }
+}, [axiosPublic])
 
-//             axios.post('https://assignment-11-server-one-kohl.vercel.app/jwt', user, { withCredentials: true })
-//                 .then(res => {
-//                     // console.log('login token', res.data);
-//                     setLoading(false);
-//                 })
-//         }
-//         else{
-//             //logout
-            
-//             axios.post('https://assignment-11-server-one-kohl.vercel.app/logout', {}, { withCredentials: true })
-//                 .then(res => {
-//                     // console.log('logout',res.data);
-//                     setLoading(false);
-//                 })
-//         }
-//         setLoading(false);
-      
-//         })
-//         return () => {
-//             unSubscribe();
-//         }
-
-// } ,[]);
 
 const authInfo = {
     name,
