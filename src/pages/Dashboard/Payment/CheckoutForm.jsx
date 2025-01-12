@@ -111,7 +111,7 @@ const CheckoutForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <CardElement
+            {/* <CardElement
                 options={{
                     style: {
                         base: {
@@ -126,7 +126,26 @@ const CheckoutForm = () => {
                         },
                     },
                 }}
-            />
+            /> */}
+            <div className="border border-gray-300 rounded-lg p-3 hover:border-blue-500 focus-within:border-blue-500 transition duration-150">
+                <CardElement
+                    options={{
+                        style: {
+                            base: {
+                                fontSize: '16px',
+                                color: '#2D3748',
+                                '::placeholder': {
+                                    color: '#A0AEC0',
+                                },
+                            },
+                            invalid: {
+                                color: '#E53E3E',
+                            },
+                        },
+                    }}
+                />
+            </div>
+
             <button className="btn btn-sm btn-primary my-4" type="submit" disabled={!stripe || !clientSecret}>
                 Pay
             </button>
